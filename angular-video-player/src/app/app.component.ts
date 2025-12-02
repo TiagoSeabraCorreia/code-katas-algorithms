@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Service, VideoData } from './service.service';
 import { concatMap, filter, from, interval, map, merge, Observable, scan, startWith, switchMap, take, takeLast, tap, toArray, withLatestFrom } from 'rxjs';
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe, JsonPipe, TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -12,10 +12,10 @@ import { AsyncPipe, JsonPipe } from '@angular/common';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  currentFrame$: Observable<string>;
-
+  currentFrame$;
+  
   constructor(
-    private readonly service: Service
+    private readonly service: Service,
   ){
     const flattenedPackageData$ = this.service.packageData()
       .pipe(
@@ -25,46 +25,49 @@ export class AppComponent {
     const steady$ = this.service.thirtyHertzData();
 
     const mergedData$ = merge(flattenedPackageData$, steady$);
-    
+
     const arrivalBuffer$ = mergedData$.pipe(
       scan((buffer: VideoData[], item: VideoData) => {
       const newBuffer = [...buffer, item];
       newBuffer.sort((a, b) => a.frameTimestamp - b.frameTimestamp);
-
-        return newBuffer.slice(-150);
+        return newBuffer;
       }, [] as VideoData[])
     );
 
-    const playbackBuffer$ = arrivalBuffer$.pipe(
-      map((buffer: VideoData[]) => buffer.slice(0, 150)),           
+    
+    this.currentFrame$ = interval(33).pipe(
+      withLatestFrom(arrivalBuffer$),
+      map((value)=> value[1]),
+      filter((value: VideoData[]) => value.length > 300),
+      scan((state: PlaybackState, timeline: VideoData[]) => {
+        if (state.buffer.length == 0){
+          state.buffer = timeline.slice(0, 150);
+          state.lastTimestampName = state.buffer[0].frameName;
+          state.lastTimestamp = state.buffer[0].frameTimestamp;
+        }
+        else {
+          const nextElement = state.buffer.shift() ?? null;
+
+          if (nextElement){
+            state.lastTimestamp = nextElement.frameTimestamp;
+            state.lastTimestampName = nextElement.frameName;
+            const newTimestamps = timeline
+            .filter((val: VideoData, index: number) => val.frameTimestamp > (state?.lastTimestamp ?? 0))
+
+            state.buffer = [...newTimestamps];
+          }
+        }
+
+        return state;
+      }, {lastTimestamp: null, buffer: [], lastTimestampName: null} as PlaybackState),
+      filter((value: PlaybackState) => value.lastTimestampName != null),
+      map((value: PlaybackState) => value.lastTimestampName)
     );
-
-    this.currentFrame$ = playbackBuffer$.pipe(
-      startWith([] as VideoData[]),
-      withLatestFrom(interval(33)),
-      scan((state, [buffer]) => {
-
-    const lastTs = state.lastTimestamp;
-
-    const newFrames = buffer.filter(f => f.frameTimestamp > lastTs);
-
-    if (newFrames.length > 0) {
-      state.buffer.push(...newFrames);
-      state.lastTimestamp = newFrames[newFrames.length - 1].frameTimestamp;
-    }
-
-    // consume next frame
-    const next = state.buffer.shift() ?? null;
-
-    return {
-      lastTimestamp: state.lastTimestamp,
-      buffer: state.buffer,
-      frame: next
-    };
-  }, { lastTimestamp: -Infinity, buffer: [] as VideoData[], frame: null } as { lastTimestamp: number, buffer: VideoData[], frame: VideoData | null}),
-    filter(s => s.frame !== null),
-    map(s => s.frame!.frameName)
-  );
-
   }
+}
+
+interface PlaybackState{
+  lastTimestamp: number | null;
+  buffer: VideoData[];
+  lastTimestampName: string | null;
 }

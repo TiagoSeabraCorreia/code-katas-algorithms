@@ -1,0 +1,5 @@
+@let ui = currentFrame$ | async;
+
+@if(ui){
+  <img [src]="'frames/frame_' + ui + '.jpg'" alt="">
+}

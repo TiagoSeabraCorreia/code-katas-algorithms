@@ -31,20 +31,21 @@ export class Service{
     }
 
     getBurstData(): Observable<Log[]> {
-        return defer(() => of(null)).pipe(
-            switchMap(() => timer(this.randomDelay())),
-            map(() => {
-            const timestamp = Date.now();
-            const size = this.randomBurstSize();
+        return defer(() => of(null))
+            .pipe(
+                switchMap(() => timer(this.randomDelay())),
+                map(() => {
+                    const timestamp = Date.now();
+                    const size = this.randomBurstSize();
 
-            return Array.from({ length: size }).map(() => ({
-                serviceId: 'burst',
-                load: this.randomLoad(),
-                timestamp,
-            }));
-            }),
-            repeat()
-        );
+                    return Array.from({ length: size }).map(() => ({
+                        serviceId: 'burst',
+                        load: this.randomLoad(),
+                        timestamp,
+                    }));
+                }),
+                repeat()
+            );
 }
     
     randomLoad(): number {

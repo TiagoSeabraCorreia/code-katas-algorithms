@@ -1,0 +1,18 @@
+KATA #1 — Tasks Module (React + Clean Architecture)
+
+Description:
+Create a small Tasks module following clean architecture principles. You must implement:
+- A mock API endpoint returning a list of tasks in the format: [{ id, title, done }].
+- A service layer responsible for fetching and updating tasks.
+- A useCase (application) layer exposing two functions: getTasks() and toggleTask(id).
+- A React component that renders the list of tasks and toggles each task’s "done" state when clicked.
+
+Rules:
+- No business logic inside React components.
+- No direct fetch calls inside components. Everything must go through the useCase layer.
+- UI is simple: a vertical list of tasks.
+- State management can be done using either useState or useReducer.
+- Do not use external libraries beyond React.
+
+Goal:
+Reinforce clean architecture structuring in React and train clarity, calm thinking, and layering discipline.

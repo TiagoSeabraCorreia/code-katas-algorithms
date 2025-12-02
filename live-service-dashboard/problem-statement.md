@@ -1,0 +1,11 @@
+You are building a real-time “Service Load Dashboard” for a Portuguese SaaS that manages bookings for barbers, mechanics and personal trainers. The dashboard consumes a stream of “system load events” that come from a mock API and from a local simulation running inside the Angular app. The API emits bursts of events every few seconds. The local simulation emits a steady tick of events every 200ms. Both must be merged, normalized, transformed and aggregated into a single observable that updates the dashboard UI.
+
+You must architect a real-time reactive pipeline that sustainably handles high-frequency emissions, batches API bursts, smooths noisy spikes, and exposes a final signal or observable to the Angular template. The dashboard displays three metrics: current load (last event), average load (rolling window 10 seconds), and anomaly detection (if the load grows more than 50% compared to the last 5-second average).
+
+You must not use ngrx or Akita. Just RxJS, Angular standalone components, and signals when useful. The mock API should be simulated by an RxJS cold observable that emits arrays of 5–20 random events every 3–7 seconds. The local simulation emits single events using interval(200). Each event is an object { serviceId: string; load: number; timestamp: number }.
+
+Your job is to design the entire reactive pipeline. Decide where the merging occurs, how the debouncing or buffering must work, how to compute the rolling windows, how to expose view models, how to detect anomalies and how to protect the UI from overload. No list of steps is given — you should structure the flow like a real senior engineer. Use pure RxJS operators: merge, switchMap, bufferTime, windowTime, scan, map, distinctUntilChanged, shareReplay, startWith, tap, catchError, etc. Decide where the backpressure should live. The pipeline must handle unreliable API bursts without freezing the UI.
+
+The UI must show a live card with the three metrics updating at least 5 times per second. Use Angular’s async pipe or signals to consume the final observable.
+
+Your solution should include the service that builds all streams, the component that consumes it, and a minimal HTML that shows the live values. No need to write CSS. The focus is the architecture and the stream reasoning. Simulate everything locally; no HTTP client is needed — only RxJS.

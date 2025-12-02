@@ -1,0 +1,13 @@
+@let ui = ui$ | async;
+
+@if(ui && ui[0].load && ui[1]){
+  <div>
+    <h1>Current Load:</h1><span>{{ui[0].load}}</span>
+  </div>
+  <div>
+    <h1>Current 10 Second average:</h1> <span>{{ui[1]}}</span>
+  </div>
+  <div *ngIf="ui[2]">
+    ANOMALY DETECTED!
+  </div>
+}

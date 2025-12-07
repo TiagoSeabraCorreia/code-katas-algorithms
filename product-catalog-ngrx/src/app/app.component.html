@@ -1,0 +1,6 @@
+@let products = products$ | async;
+{{products}}
+
+  <p *ngIf="selectedProduct$ | async as selected">
+    Selected product: {{ selected?.name }}
+  </p>

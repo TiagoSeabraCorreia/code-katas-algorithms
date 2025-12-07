@@ -1,0 +1,23 @@
+@let serviceTypes = serviceTypes$ | async;
+@let loading = loading$ | async;
+@let selectedServiceType = selectedServiceType$ | async;
+
+@if(loading == true){
+  <h1 id="loading">loading...</h1>
+}
+
+@if(serviceTypes && serviceTypes.length > 0){
+  <ul>
+    @for(item of serviceTypes; track $index){
+      <li (click)="select(item.id)">
+        {{item.name}}
+      </li>
+    }
+  </ul>
+}
+
+@if(selectedServiceType){
+  <span id="selected">{{selectedServiceType.name}}</span>
+}@else{
+  <span id="selected">Nothing selected!</span>
+}

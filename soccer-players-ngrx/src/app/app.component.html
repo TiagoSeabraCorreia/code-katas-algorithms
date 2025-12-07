@@ -1,0 +1,14 @@
+@let soccerPlayers = soccerPlayers$ | async;
+@let selectedSoccerPlayer = selectedSoccerPlayer$ | async;
+
+@if(soccerPlayers){
+  @for(player of soccerPlayers; track $index){
+    <li (click)="selectPlayer(player.id)">{{player.name}}</li>
+  }
+}
+
+@if(selectedSoccerPlayer){
+  <span>{{selectedSoccerPlayer.name}}</span>
+}@else{
+  <span>No player selected!</span>
+}
